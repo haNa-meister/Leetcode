@@ -1,4 +1,4 @@
-# 121.122.123.309 Best Time to Buy and Sell Stock
+# 121.122.123.188.309 Best Time to Buy and Sell Stock
 ## Problem1:
 Say you have an array for which the ith element is the price of a given stock on day i.  
 If you were only permitted to complete at most one transaction (ie, buy one and sell one share of the stock), design an algorithm to find the maximum profit.  
@@ -21,6 +21,9 @@ Example:
 prices = [1, 2, 3, 0, 2]  
 maxProfit = 3  
 transactions = [buy, sell, cooldown, buy, sell]  
+## Problem5:
+>Say you have an array for which the ith element is the price of a given stock on day i.  
+>Design an algorithm to find the maximum profit. You may complete at most k transactions.  
 ## Solution:
 P1:这个题非常简单，因为我们只能买卖一次股票，并且我们的最后一次操作一定是卖出股票，所以我们只需要记录i天之前最小值，这就是我们可能的最大收入的买入时机。  
 并且计算出假设我们在最佳买入时机买入，并在第i天卖出，可能的最大收入，并且一直更新最大收入即可。  
@@ -121,6 +124,42 @@ public:
             maxprofit=maxprofit>(left[i]+right[i])?maxprofit:(left[i]+right[i]);
         }
         return maxprofit;
+    }
+};
+```
+p5, 这个问题，我们一看题就知道很显然地是要用动态规划的思路（或者用堆），  
+如果我们知道第i天之前最后一次操作为买的最大资产为buy  
+如果我们知道第i天之前最后一次操作为买的最大资产为sell  
+并且buy[j]代表第i天之前第j次买的最大资产  
+并且sell[j]代表第i天之前第j次卖的最大资产  
+可以得到动态规划方程：  
+buy[j]=max(sell[j-1]-prices,buy[j])  
+sell[j]=max(buy[j]+prices,sell[j])  
+
+### Code:
+```cpp
+class Solution {
+public:
+    int maxProfit(int k, vector<int>& prices) {
+        if(prices.size()==0) return 0;
+        int ans=0;
+        if(k>prices.size()/2){
+            for(int i=1;i<prices.size();i++){
+                ans+=max(prices[i]-prices[i-1],0);
+            }
+            return ans;
+        }
+        else{
+            vector<int> buy(k+1,INT_MIN);
+            vector<int> sell(k+1,0);
+            for(int price:prices){
+                for(int j=1;j<=k;j++){
+                    buy[j]=max(sell[j-1]-price,buy[j]);
+                    sell[j]=max(buy[j]+price,sell[j]);
+                }
+            }
+            return sell[k];
+        }
     }
 };
 ```
